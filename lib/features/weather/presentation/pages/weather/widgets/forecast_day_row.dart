@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/core/theme/app_dimensions.dart';
-import 'package:weather_app/core/theme/app_text_styles.dart';
-import 'package:weather_app/features/weather/presentation/pages/weather/widgets/degree_text.dart';
+
+import 'package:weather_app/core/theme/theme.dart';
+
+import 'degree_text.dart';
 
 class ForecastDayRow extends StatelessWidget {
   final int maxTemperature;
@@ -32,7 +33,7 @@ class ForecastDayRow extends StatelessWidget {
         Image.asset(
           image,
           width: 34,
-          fit: BoxFit.contain,
+          fit: BoxFit.cover,
         ),
         Row(
           spacing: AppDimensions.p10,

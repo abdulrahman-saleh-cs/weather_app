@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/core/theme/app_colors.dart';
-import 'package:weather_app/core/theme/app_dimensions.dart';
+
+import 'package:weather_app/core/theme/theme.dart';
 
 class WeatherDataCard extends StatelessWidget {
   const WeatherDataCard({super.key, required this.child});

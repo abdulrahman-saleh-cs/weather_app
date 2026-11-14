@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:weather_app/core/theme/app_colors.dart';
-import 'package:weather_app/core/theme/app_dimensions.dart';
-import 'package:weather_app/core/theme/app_text_styles.dart';
-import 'package:weather_app/features/weather/presentation/pages/weather/widgets/weather_data_card.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
+import 'package:weather_app/core/core.dart';
+import 'package:weather_app/features/weather/domain/domain.dart';
 import 'forecast_day_row.dart';
-
+import 'weather_data_card.dart';
 class NextForecastCard extends StatelessWidget {
-  const NextForecastCard({super.key});
+  final List<DailyForecastEntity> days;
 
+  const NextForecastCard({super.key, required this.days});
   @override
   Widget build(BuildContext context) {
     return WeatherDataCard(
@@ -23,7 +23,7 @@ class NextForecastCard extends StatelessWidget {
                 style: AppTextStyles.titleLarge,
               ),
               SvgPicture.asset(
-                'assets/icons/calendar.svg',
+                AppIcons.calendar,
                 width: AppDimensions.iconS,
                 height: AppDimensions.iconS,
                 colorFilter: const ColorFilter.mode(
@@ -33,29 +33,17 @@ class NextForecastCard extends StatelessWidget {
               ),
             ],
           ),
-          const Column(
+          Column(
             spacing: AppDimensions.p10,
-            children: [
-              ForecastDayRow(
-                maxTemperature: 13,
-                minTemperature: 10,
-                image: 'assets/images/big_rain_drops.png',
-                day: 'Monday',
-              ),
-              ForecastDayRow(
-                maxTemperature: 17,
-                minTemperature: 12,
-                image: 'assets/images/cloud_3_zap.png',
-                day: 'Tuesday',
-              ),
-              ForecastDayRow(
-                maxTemperature: 14,
-                minTemperature: 11,
-                image: 'assets/images/big_rain_drops.png',
-                day: 'Wednesday',
-              ),
-            ],
-          )
+            children: days.skip(1).take(3).map((day) {
+              return ForecastDayRow(
+                maxTemperature: day.maxTemp,
+                minTemperature: day.minTemp,
+                image: day.image,
+                day: DateFormat('EEEE').format(DateTime.parse(day.day)),
+              );
+            }).toList(),
+          ),
         ],
       ),
     );

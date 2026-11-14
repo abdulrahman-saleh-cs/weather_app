@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:weather_app/core/theme/app_colors.dart';
-import 'package:weather_app/core/theme/app_dimensions.dart';
-import 'package:weather_app/core/theme/app_text_styles.dart';
+import 'package:weather_app/core/theme/theme.dart';
 
 class WeatherMetricItem extends StatelessWidget {
   final String iconPath;

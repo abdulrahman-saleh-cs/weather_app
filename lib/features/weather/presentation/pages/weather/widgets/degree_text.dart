@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/core/theme/app_colors.dart';
+import 'package:weather_app/core/theme/theme.dart';
 
 class DegreeText extends StatelessWidget {
   final int temperature;

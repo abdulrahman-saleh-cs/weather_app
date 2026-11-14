@@ -1,56 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/core/theme/app_dimensions.dart';
-import 'package:weather_app/core/theme/app_text_styles.dart';
-import 'package:weather_app/features/weather/presentation/pages/weather/widgets/weather_data_card.dart';
+import 'package:intl/intl.dart';
+
+import 'package:weather_app/core/core.dart';
+import 'package:weather_app/features/weather/domain/domain.dart';
 
 import 'hourly_item_widget.dart';
+import 'weather_data_card.dart';
 
 class HourlyForecastCard extends StatelessWidget {
-  const HourlyForecastCard({super.key});
+  final List<HourlyForecastEntity> hours;
+
+  const HourlyForecastCard({super.key, required this.hours});
 
   @override
   Widget build(BuildContext context) {
-    return const WeatherDataCard(
+    final nowHour = DateTime.now().hour;
+
+    // Find the current hour index (if not found, use 0)
+    var currentIndex = hours.indexWhere(
+      (h) => int.parse(h.time.split(':').first) == nowHour,
+    );
+    if (currentIndex == -1) currentIndex = 0;
+
+    // Start from two hours before current, staying within list bounds
+    final start = (currentIndex - 2).clamp(0, hours.length - 4);
+    final visibleHours = hours.skip(start).take(4).toList();
+
+    return WeatherDataCard(
       child: Column(
         spacing: AppDimensions.p10,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Today',
                 style: AppTextStyles.titleLarge,
               ),
               Text(
-                'Mar, 9',
+                DateFormat('MMM, d').format(DateTime.now()),
                 style: AppTextStyles.bodyMedium,
               ),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              HourlyItemWidget(
-                  temperature: '29°',
-                  image: 'assets/images/sun_cloud_day.png',
-                  time: '15.00',
-                  isNow: false),
-              HourlyItemWidget(
-                  temperature: '26°',
-                  image: 'assets/images/sun_cloud_day.png',
-                  time: '16.00',
-                  isNow: false),
-              HourlyItemWidget(
-                  temperature: '24°',
-                  image: 'assets/images/overcast_cloud.png',
-                  time: '17.00',
-                  isNow: true),
-              HourlyItemWidget(
-                  temperature: '23°',
-                  image: 'assets/images/moon_cloud_night.png',
-                  time: '18.00',
-                  isNow: false),
-            ],
+            children: visibleHours.map((hour) {
+              final hourNumber = int.parse(hour.time.split(':').first);
+
+              return HourlyItemWidget(
+                temperature: '${hour.temperature.round()}°',
+                image: hour.image,
+                time: hour.time.replaceAll(':', '.'),
+                isNow: hourNumber == nowHour,
+              );
+            }).toList(),
           ),
         ],
       ),

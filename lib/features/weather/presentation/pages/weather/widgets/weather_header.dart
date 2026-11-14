@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:weather_app/core/theme/app_colors.dart';
-import 'package:weather_app/core/theme/app_dimensions.dart';
-import 'package:weather_app/core/theme/app_text_styles.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:weather_app/core/core.dart';
 
 class WeatherHeader extends StatelessWidget {
-  const WeatherHeader({super.key});
+  const WeatherHeader({super.key, required this.cityName});
+  final String cityName ;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +12,7 @@ class WeatherHeader extends StatelessWidget {
       spacing: AppDimensions.p10,
       children: [
         SvgPicture.asset(
-          'assets/icons/map.svg',
+          AppIcons.map,
           width: AppDimensions.iconM,
           height: AppDimensions.iconM,
           colorFilter: const ColorFilter.mode(
@@ -21,12 +20,12 @@ class WeatherHeader extends StatelessWidget {
             BlendMode.srcIn,
           ),
         ),
-        const Text(
-          'Fortaleza',
+        Text(
+          cityName,
           style: AppTextStyles.bodyLarge,
         ),
         SvgPicture.asset(
-          'assets/icons/opt.svg',
+          AppIcons.opt,
           width: AppDimensions.iconM,
           height: AppDimensions.iconM,
           colorFilter: const ColorFilter.mode(
@@ -39,7 +38,7 @@ class WeatherHeader extends StatelessWidget {
           alignment: AlignmentGeometry.topEnd,
           children: [
             SvgPicture.asset(
-              'assets/icons/notif.svg',
+              AppIcons.notif,
               width: AppDimensions.iconM,
               height: AppDimensions.iconM,
               colorFilter: const ColorFilter.mode(
