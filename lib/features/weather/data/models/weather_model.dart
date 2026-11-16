@@ -1,6 +1,9 @@
 import 'package:weather_app/features/weather/domain/entities/entities.dart';
 import 'package:weather_app/core/utils/utils.dart';
 
+import 'daily_forecast_model.dart';
+import 'hourly_forecast_model.dart';
+
 class WeatherModel extends WeatherEntity {
   const WeatherModel({
     required super.cityName,
@@ -66,6 +69,8 @@ class WeatherModel extends WeatherEntity {
     return List.generate(24, (i) => HourlyForecastModel(
       time: times[i].toString().split('T').last,
       temperature: (temps[i] as num).toDouble(),
+      weatherCode: codes[i] as int,
+      isDay: isDay[i] == 1,
       image: WeatherCodeMapper.image(
         codes[i] as int,
         isDay: isDay[i] == 1,
@@ -83,22 +88,7 @@ class WeatherModel extends WeatherEntity {
       maxTemp: (maxTemps[i] as num).round(),
       minTemp: (minTemps[i] as num).round(),
       image: WeatherCodeMapper.image(codes[i] as int),
+      weatherCode: codes[i] as int,
     ));
   }}
 
-class HourlyForecastModel extends HourlyForecastEntity {
-  const HourlyForecastModel({
-    required super.time,
-    required super.temperature,
-    required super.image,
-  });
-}
-
-class DailyForecastModel extends DailyForecastEntity {
-  const DailyForecastModel({
-    required super.day,
-    required super.maxTemp,
-    required super.minTemp,
-    required super.image,
-  });
-}

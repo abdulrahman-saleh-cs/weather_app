@@ -19,7 +19,7 @@ class DegreeText extends StatelessWidget {
         text: TextSpan(
           style: TextStyle(
             fontSize: 20,
-            color: isMuted ? AppColors.white.withOpacity(0.5) : AppColors.white,
+            color: isMuted ? AppColors.white.withValues(alpha:0.5) : AppColors.white,
           ),
           children: [
             TextSpan(
@@ -35,7 +35,7 @@ class DegreeText extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: isMuted ? AppColors.white.withOpacity(0.5) : AppColors.white,
+                  color: isMuted ? AppColors.white.withValues(alpha:0.5) : AppColors.white,
                 ),
               ),
             ),

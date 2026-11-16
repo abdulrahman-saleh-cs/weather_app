@@ -3,13 +3,13 @@ library;
 import 'package:dio/dio.dart';
 import 'error_model.dart';
 
-//!ServerException
+/// Exception thrown when a server-side error occurs.
 class ServerException implements Exception {
   final ErrorModel errorModel;
   ServerException(this.errorModel);
 }
 
-//!CacheException
+/// Exception thrown when a local caching error occurs.
 class CacheException implements Exception {
   final String errorMessage;
   CacheException({required this.errorMessage});
@@ -63,6 +63,7 @@ class UnknownException extends ServerException {
   UnknownException(super.errorModel);
 }
 
+/// Dispatches DioExceptions to specific custom exception classes.
 void handleDioException(DioException e) {
   switch (e.type) {
     case DioExceptionType.connectionError:
@@ -87,17 +88,15 @@ void handleDioException(DioException e) {
   }
 }
 
-/// Safely creates an ErrorModel from DioException, handling null responses and unexpected data formats
+/// Safely creates an ErrorModel from DioException, handling null responses and unexpected data formats.
 ErrorModel _handleError(DioException e, String defaultMsg) {
   final responseData = e.response?.data;
   final statusCode = e.response?.statusCode ?? 500;
 
   if (responseData != null && responseData is Map) {
-    // Safely use factory if server returns expected JSON map
     return ErrorModel.fromJson(responseData);
   }
 
-  // Fallback to raw response string, Dio's internal message, or custom default
   return ErrorModel(
     status: statusCode,
     errorMessage: responseData?.toString() ?? e.message ?? defaultMsg,

@@ -5,7 +5,7 @@ import 'core/services/service_locator.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  setUp(); // <-- Initialize GetIt dependencies here!
+  setUp();
   runApp(const MyApp());
 }
 
@@ -15,7 +15,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       home: const WeatherView(),

@@ -34,7 +34,7 @@ class AppTextStyles {
   );
 
   static TextStyle bodyMediumMuted = TextStyle(
-    color: AppColors.white.withOpacity(0.5),
+    color: AppColors.white.withValues(alpha:0.5),
     fontSize: 18,
     fontWeight: FontWeight.w400,
   );

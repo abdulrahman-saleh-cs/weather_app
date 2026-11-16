@@ -1,54 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/core/theme/theme.dart';
+import 'package:weather_app/core/weather_ui/weather_ui.dart';
 
 class HourlyItemWidget extends StatelessWidget {
-  final String temperature;
-  final String image;
-  final String time;
-  final bool isNow;
-
   const HourlyItemWidget({
     super.key,
     required this.temperature,
-    required this.image,
+    required this.condition,
+    required this.isNight,
     required this.time,
     required this.isNow,
   });
 
+  final String temperature, time;
+  final WeatherCondition condition;
+  final bool isNight, isNow;
+
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isNow ? const Color.fromRGBO(37, 102, 163, 0.2) : null,
-        borderRadius: BorderRadius.circular(AppDimensions.r20),
-        border: isNow
-            ? Border.all(
-                color: const Color(0xFF5096FF),
-              )
-            : null,
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.p10,
-        vertical: AppDimensions.p14,
-      ),
-      child: Column(
-        spacing: AppDimensions.p20,
-        children: [
-          Text(
-            temperature,
-            style: AppTextStyles.bodyMedium,
-          ),
-          Image.asset(
-            image,
-            width: 34,
-            fit: BoxFit.contain,
-          ),
-          Text(
-            time,
-            style: AppTextStyles.bodyMedium,
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        width: 66,
+        transform: Matrix4.translationValues(0, isNow ? -4 : 0, 0),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: isNow
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFFFB86B), Accent.coral],
+                )
+              : null,
+          boxShadow: isNow
+              ? [BoxShadow(color: Accent.coral.withValues(alpha: .45), blurRadius: 18, offset: const Offset(0, 8))]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(temperature, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+            WeatherIcon(condition: condition, isNight: isNight, size: 36, animate: false),
+            Text(time, style: const TextStyle(fontSize: 12, color: Colors.white)),
+          ],
+        ),
+      );
 }

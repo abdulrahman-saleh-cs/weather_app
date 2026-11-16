@@ -1,23 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:weather_app/core/weather_ui/weather_ui.dart';
 
-import 'package:weather_app/core/theme/theme.dart';
-
+/// Frosted-glass card used by every section of the screen.
 class WeatherDataCard extends StatelessWidget {
   const WeatherDataCard({super.key, required this.child});
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.p20,
-        vertical: AppDimensions.p14,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(AppDimensions.r20),
-      ),
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => SizedBox(
+        width: double.infinity,
+        child: GlassCard(child: child),
+      );
 }

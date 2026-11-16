@@ -8,3 +8,4 @@ export 'params/params.dart';
 export 'services/services.dart';
 export 'theme/theme.dart';
 export 'utils/utils.dart';
+export 'weather_ui/weather_ui.dart';

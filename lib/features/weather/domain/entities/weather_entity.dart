@@ -1,5 +1,8 @@
 import 'package:equatable/equatable.dart';
 
+import 'daily_forecast_entity.dart';
+import 'hourly_forecast_entity.dart';
+
 class WeatherEntity extends Equatable {
   final String cityName;
   final double temperature;
@@ -47,36 +50,4 @@ class WeatherEntity extends Equatable {
     isDay,
     image,
   ];
-}
-
-class HourlyForecastEntity extends Equatable {
-  final String time;
-  final double temperature;
-  final String image;
-
-  const HourlyForecastEntity({
-    required this.time,
-    required this.temperature,
-    required this.image,
-  });
-
-  @override
-  List<Object?> get props => [time, temperature, image];
-}
-
-class DailyForecastEntity extends Equatable {
-  final String day;
-  final int maxTemp;
-  final int minTemp;
-  final String image;
-
-  const DailyForecastEntity({
-    required this.day,
-    required this.maxTemp,
-    required this.minTemp,
-    required this.image,
-  });
-
-  @override
-  List<Object?> get props => [day, maxTemp, minTemp, image];
 }

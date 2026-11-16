@@ -13,13 +13,16 @@ class WeatherInitial extends WeatherState {}
 class WeatherLoading extends WeatherState {}
 
 class WeatherSuccess extends WeatherState {
+  const WeatherSuccess(this.weather, {this.selectedHour = 0});
+
   final WeatherEntity weather;
-  const WeatherSuccess(this.weather);
+  final int selectedHour; // index into weather.hourlyForecast
 
+  WeatherSuccess copyWith({int? selectedHour}) =>
+      WeatherSuccess(weather, selectedHour: selectedHour ?? this.selectedHour);
   @override
-  List<Object?> get props => [weather];
+  List<Object?> get props => [weather, selectedHour];
 }
-
 class WeatherFailure extends WeatherState {
   final String errMessage;
   const WeatherFailure(this.errMessage);

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather_app/features/weather/presentation/manager/manager.dart';
-import 'package:weather_app/features/weather/presentation/pages/weather/widgets/widgets.dart';
+import 'package:weather_app/features/weather/weather.dart';
 import 'package:weather_app/core/services/services.dart';
 
 class WeatherView extends StatelessWidget {
