@@ -2,7 +2,11 @@ import 'package:weather_app/core/databases/api/api.dart';
 import '../models/models.dart';
 
 abstract class WeatherRemoteDataSource {
-  Future<WeatherModel> getWeather({required double lat, required double lon});
+  Future<WeatherModel> getWeather({
+    required double lat,
+    required double lon,
+    required String cityName,
+  });
 }
 
 class WeatherRemoteDataSourceImpl implements WeatherRemoteDataSource {
@@ -11,8 +15,11 @@ class WeatherRemoteDataSourceImpl implements WeatherRemoteDataSource {
   WeatherRemoteDataSourceImpl({required this.api});
 
   @override
-  Future<WeatherModel> getWeather(
-      {required double lat, required double lon}) async {
+  Future<WeatherModel> getWeather({
+    required double lat,
+    required double lon,
+    required String cityName,
+  }) async {
     final response = await api.get(
       '${EndPoints.forecastBaseUrl}${EndPoints.forecast}',
       queryParameters: {
@@ -27,6 +34,6 @@ class WeatherRemoteDataSourceImpl implements WeatherRemoteDataSource {
       },
     );
 
-    return WeatherModel.fromJson(response, "Benghazi");
+    return WeatherModel.fromJson(response, cityName);
   }
 }

@@ -12,8 +12,12 @@ class WeatherCubit extends Cubit<WeatherState> {
         super(WeatherInitial());
 
   /// First load (shows the loading screen).
-  Future<void> getWeather({required double lat, required double lon}) async {
-    _lastParams = WeatherParams(lat: lat, lon: lon);
+  Future<void> getWeather({
+    required double lat,
+    required double lon,
+    required String cityName,
+  }) async {
+    _lastParams = WeatherParams(lat: lat, lon: lon, cityName: cityName);
     emit(WeatherLoading());
     await _load(showError: true);
   }
@@ -28,7 +32,7 @@ class WeatherCubit extends Cubit<WeatherState> {
   Future<void> retry() async {
     final p = _lastParams;
     if (p == null) return;
-    await getWeather(lat: p.lat, lon: p.lon);
+    await getWeather(lat: p.lat, lon: p.lon, cityName: p.cityName);
   }
 
   Future<void> _load({required bool showError}) async {

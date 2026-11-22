@@ -6,5 +6,6 @@ abstract class WeatherRepository {
   Future<Either<Failure, WeatherEntity>> getWeather({
     required double lat,
     required double lon,
+    required String cityName,
   });
 }

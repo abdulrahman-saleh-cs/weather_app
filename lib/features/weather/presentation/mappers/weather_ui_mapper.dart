@@ -8,9 +8,9 @@ import 'package:weather_app/features/weather/domain/domain.dart';
 //   63 rain, 65 heavy rain, 66 sleet, 75 snow, 95 thunderstorm, 96 hail
 //   kDebugIsDay: false = night      kDebugWindKmh: 50 = windy
 // ---------------------------------------------------------------------------
-const int? kDebugWeatherCode = 63;
-const bool? kDebugIsDay = false;
-const double? kDebugWindKmh = 20;
+const int? kDebugWeatherCode = null;
+const bool? kDebugIsDay = null;
+const double? kDebugWindKmh = null;
 
 int hourOf(String time) => int.tryParse(time.split(':').first) ?? 12;
 

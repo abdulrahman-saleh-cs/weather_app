@@ -16,10 +16,11 @@ class WeatherRepositoryImpl implements WeatherRepository {
   Future<Either<Failure, WeatherEntity>> getWeather({
     required double lat,
     required double lon,
+    required String cityName,
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        final remoteWeather = await remoteDataSource.getWeather(lat: lat, lon: lon);
+        final remoteWeather = await remoteDataSource.getWeather(lat: lat, lon: lon, cityName: cityName);
         return Right(remoteWeather);
       } on ServerException catch (e) {
         return Left(Failure(errMessage: e.errorModel.errorMessage, code: e.errorModel.status.toString()));

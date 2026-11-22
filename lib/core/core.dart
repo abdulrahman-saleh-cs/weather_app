@@ -5,6 +5,7 @@ export 'constants/constants.dart';
 export 'databases/databases.dart';
 export 'errors/errors.dart';
 export 'params/params.dart';
+export 'responsive/responsive.dart';
 export 'services/services.dart';
 export 'theme/theme.dart';
 export 'utils/utils.dart';

@@ -4,10 +4,19 @@ import 'package:weather_app/core/theme/theme.dart';
 import 'package:weather_app/core/weather_ui/weather_ui.dart';
 
 class WeatherHeader extends StatelessWidget {
-  const WeatherHeader({super.key, required this.cityName, this.onCityTap, this.onBellTap});
+  const WeatherHeader({
+    super.key,
+    required this.cityName,
+    this.onCityTap,
+    this.onBellTap,
+    this.onRefreshTap,
+  });
   final String cityName;
   final VoidCallback? onCityTap;
   final VoidCallback? onBellTap;
+
+  /// When set, a refresh button is shown (used on tablet / desktop).
+  final VoidCallback? onRefreshTap;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -26,7 +35,18 @@ class WeatherHeader extends StatelessWidget {
               ]),
             ),
           ),
-          GestureDetector(onTap: onBellTap, child: const _RingingBell()),
+          Row(mainAxisSize: MainAxisSize.min, spacing: 8, children: [
+            if (onRefreshTap != null)
+              GestureDetector(
+                onTap: onRefreshTap,
+                child: const GlassCard(
+                  radius: 99,
+                  padding: EdgeInsets.all(10),
+                  child: Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
+                ),
+              ),
+            GestureDetector(onTap: onBellTap, child: const _RingingBell()),
+          ]),
         ],
       );
 }

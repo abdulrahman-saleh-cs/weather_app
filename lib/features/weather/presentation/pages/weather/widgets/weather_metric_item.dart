@@ -31,7 +31,10 @@ class WeatherMetricItem extends StatelessWidget {
               child: Icon(icon, size: 19, color: color),
             ),
             const SizedBox(height: 6),
-            Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+            ),
             Text(label.toUpperCase(),
                 style: const TextStyle(fontSize: 10.5, letterSpacing: .6, color: Colors.white70)),
           ]),

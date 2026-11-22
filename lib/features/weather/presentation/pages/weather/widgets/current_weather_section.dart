@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app/core/weather_ui/weather_ui.dart';
+import '../layouts/weather_layout_metrics.dart';
 
 class CurrentWeatherSection extends StatelessWidget {
   const CurrentWeatherSection({
@@ -17,6 +18,7 @@ class CurrentWeatherSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final m = context.layoutMetrics;
     return Column(children: [
       _Floating(
         child: AnimatedSwitcher(
@@ -30,7 +32,7 @@ class CurrentWeatherSection extends StatelessWidget {
             key: ValueKey('$condition$isNight'),
             condition: condition,
             isNight: isNight,
-            size: 180,
+            size: m.heroIconSize,
           ),
         ),
       ),
@@ -43,10 +45,17 @@ class CurrentWeatherSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('${v.round()}',
-                style: const TextStyle(fontSize: 92, fontWeight: FontWeight.w700, height: 1.1, letterSpacing: -4, color: Colors.white)),
-            const Padding(
-              padding: EdgeInsets.only(top: 14),
-              child: Text('°', style: TextStyle(fontSize: 46, fontWeight: FontWeight.w500, color: Colors.white70)),
+                style: TextStyle(
+                  fontSize: m.tempFontSize,
+                  fontWeight: FontWeight.w700,
+                  height: 1.1,
+                  letterSpacing: m.tempLetterSpacing,
+                  color: Colors.white,
+                )),
+            Padding(
+              padding: EdgeInsets.only(top: m.degreeTopPadding),
+              child: Text('°',
+                  style: TextStyle(fontSize: m.degreeFontSize, fontWeight: FontWeight.w500, color: Colors.white70)),
             ),
           ],
         ),

@@ -12,6 +12,7 @@ class GetWeather {
     return await repository.getWeather(
       lat: params.lat,
       lon: params.lon,
+      cityName: params.cityName,
     );
   }
 }

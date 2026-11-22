@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:weather_app/core/core.dart';
 import 'package:weather_app/features/weather/domain/domain.dart';
 import '../../../mappers/weather_ui_mapper.dart';
+import '../layouts/weather_layout_metrics.dart';
 import 'forecast_day_row.dart';
 import 'weather_data_card.dart';
 
@@ -13,7 +14,7 @@ class NextForecastCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final next = days.skip(1).take(3).toList();
+    final next = days.skip(1).take(context.layoutMetrics.forecastDays).toList();
     final lo = next.map((d) => d.minTemp).reduce(math.min);
     final hi = next.map((d) => d.maxTemp).reduce(math.max);
     return WeatherDataCard(

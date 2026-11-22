@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/core/theme/theme.dart';
+import 'package:weather_app/core/core.dart';
 import 'package:weather_app/features/weather/presentation/pages/weather/weather.dart';
 import 'core/services/service_locator.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setUp();
+  await getIt<CacheHelper>().init();
   runApp(const MyApp());
 }
 

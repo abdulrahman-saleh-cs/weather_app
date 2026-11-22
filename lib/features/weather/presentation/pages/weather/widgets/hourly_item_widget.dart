@@ -9,17 +9,21 @@ class HourlyItemWidget extends StatelessWidget {
     required this.isNight,
     required this.time,
     required this.isNow,
+    this.width = 66,
   });
 
   final String temperature, time;
   final WeatherCondition condition;
   final bool isNight, isNow;
 
+  /// Fixed width for scrolling lists; `null` lets the tile fill its parent.
+  final double? width;
+
   @override
   Widget build(BuildContext context) => AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
-        width: 66,
+        width: width,
         transform: Matrix4.translationValues(0, isNow ? -4 : 0, 0),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
