@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../manager/manager.dart';
 import 'city_tile.dart';
-
+import 'package:weather_app/core/core.dart';
 class SearchResultsList extends StatelessWidget {
   const SearchResultsList({super.key, required this.onCityChosen});
 

@@ -18,14 +18,20 @@ class SavedCityCard extends StatelessWidget {
   final CityWeatherEntity? weather;
   final bool selected;
   final VoidCallback onTap;
-
+  /// Calm blue-violet base shown until the city's weather arrives.
+  static const _loadingGradient = [
+    Color(0xFF2A3260),
+    Color(0xFF323869),
+    Color(0xFF3A3F78),
+  ];
   @override
   Widget build(BuildContext context) {
     final w = weather;
     final condition = w == null ? null : conditionFromWmo(w.weatherCode);
     final isDay = w?.isDay ?? false;
-    final theme = themeFor(condition ?? WeatherCondition.clear, isDay ? DayPhase.noon : DayPhase.night);
-
+    final gradient = w == null
+        ? _loadingGradient
+        : themeFor(condition ?? WeatherCondition.clear, isDay ? DayPhase.noon : DayPhase.night).gradient;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -38,7 +44,7 @@ class SavedCityCard extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: theme.gradient,
+            colors: gradient,
           ),
           border: Border.all(
             color: Colors.white.withValues(alpha: selected ? .85 : .16),
@@ -46,9 +52,9 @@ class SavedCityCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: theme.gradient[1].withValues(alpha: .35),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
+              color: gradient[1].withValues(alpha: .35),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -87,9 +93,12 @@ class _CityInfo extends StatelessWidget {
               style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: .75)),
             ),
           const SizedBox(height: 8),
-          Text(
-            condition?.label ?? 'Loading…',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
+          _Pulse(
+            active: condition == null,
+            child: Text(
+              condition?.label ?? '--',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
+            ),
           ),
         ],
       );
@@ -125,17 +134,66 @@ class _Reading extends StatelessWidget {
       if (w != null && condition != null)
         WeatherIcon(condition: condition!, isNight: !w.isDay, size: 52, animate: false),
       const SizedBox(width: 6),
-      Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-        Text(
-          w == null ? '--°' : '${w.temperature}°',
-          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w600, height: 1, color: Colors.white),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          w == null ? '' : 'H:${w.maxTemp}°  L:${w.minTemp}°',
-          style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: .8)),
-        ),
-      ]),
+      _Pulse(
+        active: w == null,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Text(
+            w == null ? '--°' : '${w.temperature}°',
+            style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w600, height: 1, color: Colors.white),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            w == null ? 'H:--°  L:--°' : 'H:${w.maxTemp}°  L:${w.minTemp}°',
+            style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: .8)),
+          ),
+        ]),
+      ),
     ]);
   }
+}
+/// Slowly fades its child in and out while [active] (used for the "--" placeholders).
+class _Pulse extends StatefulWidget {
+  const _Pulse({required this.active, required this.child});
+  final bool active;
+  final Widget child;
+
+  @override
+  State<_Pulse> createState() => _PulseState();
+}
+
+class _PulseState extends State<_Pulse> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 750));
+  late final Animation<double> _opacity = Tween<double>(begin: 1, end: .45)
+      .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(_Pulse oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _sync();
+  }
+
+  void _sync() {
+    if (widget.active) {
+      if (!_controller.isAnimating) _controller.repeat(reverse: true);
+    } else {
+      _controller.stop();
+      _controller.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FadeTransition(opacity: _opacity, child: widget.child);
 }
