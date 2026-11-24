@@ -1,49 +1,57 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 
-/// Swipe left to reveal a round delete button (spring-loaded), tap it and the
-/// item shrinks, fades and collapses so the items below glide up.
-///
-/// [spacing] is the gap below the item. It lives inside the collapsing area so
-/// the gap disappears smoothly too.
+
 class SwipeToDelete extends StatefulWidget {
   const SwipeToDelete({
     super.key,
     required this.child,
     required this.onDelete,
     this.enabled = true,
-    this.spacing = 12,
+    this.padding = const EdgeInsets.fromLTRB(20, 6, 20, 14),
   });
 
   final Widget child;
   final VoidCallback onDelete;
   final bool enabled;
-  final double spacing;
+  final EdgeInsets padding;
 
   @override
   State<SwipeToDelete> createState() => _SwipeToDeleteState();
 }
 
 class _SwipeToDeleteState extends State<SwipeToDelete> with TickerProviderStateMixin {
-  static const double _revealWidth = 84;
-  static const double _overshoot = 24;
+  static const double _actionWidth = 78;
+  static const double _actionGap = 16;
+  static const double _revealWidth = _actionWidth + _actionGap;
+  static const double _commitFraction = .55;
   static const double _flingVelocity = 400;
+  static const double _commitFlingVelocity = 1800;
+  static const double _actionRadius = 26;
   static const _spring = SpringDescription(mass: 1, stiffness: 320, damping: 28);
 
   late final AnimationController _slide = AnimationController.unbounded(vsync: this);
   late final AnimationController _exit =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 380));
+  AnimationController(vsync: this, duration: const Duration(milliseconds: 520));
 
-  late final Animation<double> _size =
-      Tween<double>(begin: 1, end: 0).chain(CurveTween(curve: Curves.easeInOutCubic)).animate(_exit);
   late final Animation<double> _fade =
-      Tween<double>(begin: 1, end: 0).chain(CurveTween(curve: const Interval(0, .6))).animate(_exit);
+  Tween<double>(begin: 1, end: 0).chain(CurveTween(curve: const Interval(0, .35))).animate(_exit);
   late final Animation<double> _scale =
-      Tween<double>(begin: 1, end: .92).chain(CurveTween(curve: const Interval(0, .6))).animate(_exit);
+  Tween<double>(begin: 1, end: .92).chain(CurveTween(curve: const Interval(0, .35))).animate(_exit);
+  late final Animation<double> _size = Tween<double>(begin: 1, end: 0)
+      .chain(CurveTween(curve: const Interval(.3, 1, curve: Curves.easeInOutCubic)))
+      .animate(_exit);
 
+  double _cardWidth = 0;
   bool _open = false;
   bool _pastHalf = false;
+  bool _armed = false;
+  bool _committing = false;
+
+  double get _commitDistance => math.max(_revealWidth * 1.4, _cardWidth * _commitFraction);
 
   @override
   void dispose() {
@@ -53,8 +61,9 @@ class _SwipeToDeleteState extends State<SwipeToDelete> with TickerProviderStateM
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
+    if (_committing) return;
     if (_slide.isAnimating) _slide.stop();
-    final next = (_slide.value + details.delta.dx).clamp(-_revealWidth - _overshoot, 0.0).toDouble();
+    final next = (_slide.value + details.delta.dx).clamp(-_cardWidth, 0.0).toDouble();
     _slide.value = next;
 
     final pastHalf = next < -_revealWidth / 2;
@@ -62,15 +71,30 @@ class _SwipeToDeleteState extends State<SwipeToDelete> with TickerProviderStateM
       _pastHalf = pastHalf;
       HapticFeedback.selectionClick();
     }
+
+    final armed = next <= -_commitDistance;
+    if (armed != _armed) {
+      _armed = armed;
+      HapticFeedback.mediumImpact();
+    }
   }
 
   void _onDragEnd(DragEndDetails details) {
+    if (_committing) return;
     final velocity = details.velocity.pixelsPerSecond.dx;
+
+    final hardFling = velocity < -_commitFlingVelocity && _slide.value < -_revealWidth;
+    if (_slide.value <= -_commitDistance || hardFling) {
+      _commit();
+      return;
+    }
+
     final open = velocity < -_flingVelocity
         ? true
         : velocity > _flingVelocity
-            ? false
-            : _slide.value < -_revealWidth / 2;
+        ? false
+        : _slide.value < -_revealWidth / 2;
+    _armed = false;
     _snapTo(open, velocity: velocity);
   }
 
@@ -79,6 +103,12 @@ class _SwipeToDeleteState extends State<SwipeToDelete> with TickerProviderStateM
     _slide.animateWith(
       SpringSimulation(_spring, _slide.value, open ? -_revealWidth : 0, velocity),
     );
+  }
+
+  Future<void> _commit() async {
+    setState(() => _committing = true);
+    await _slide.animateTo(-_cardWidth, duration: const Duration(milliseconds: 180), curve: Curves.easeOut);
+    if (mounted) await _delete();
   }
 
   Future<void> _delete() async {
@@ -90,11 +120,11 @@ class _SwipeToDeleteState extends State<SwipeToDelete> with TickerProviderStateM
   @override
   Widget build(BuildContext context) {
     if (!widget.enabled) {
-      return Padding(padding: EdgeInsets.only(bottom: widget.spacing), child: widget.child);
+      return Padding(padding: widget.padding, child: widget.child);
     }
 
     return AbsorbPointer(
-      absorbing: _exit.isAnimating || _exit.isCompleted,
+      absorbing: _committing || _exit.isAnimating || _exit.isCompleted,
       child: SizeTransition(
         sizeFactor: _size,
         axisAlignment: -1,
@@ -103,40 +133,44 @@ class _SwipeToDeleteState extends State<SwipeToDelete> with TickerProviderStateM
           child: ScaleTransition(
             scale: _scale,
             child: Padding(
-              padding: EdgeInsets.only(bottom: widget.spacing),
-              child: AnimatedBuilder(
-                animation: _slide,
-                builder: (context, _) {
-                  final dx = _slide.value;
-                  final progress = (-dx / _revealWidth).clamp(0.0, 1.0);
-                  return GestureDetector(
-                    onHorizontalDragUpdate: _onDragUpdate,
-                    onHorizontalDragEnd: _onDragEnd,
-                    child: Stack(children: [
-                      Positioned.fill(
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 16),
+              padding: widget.padding,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  _cardWidth = constraints.maxWidth;
+                  return AnimatedBuilder(
+                    animation: _slide,
+                    builder: (context, _) {
+                      final dx = _slide.value;
+                      final progress = (-dx / _revealWidth).clamp(0.0, 1.0);
+                      final blockWidth = dx < -_revealWidth ? -dx - _actionGap : _actionWidth;
+                      return GestureDetector(
+                        onHorizontalDragUpdate: _onDragUpdate,
+                        onHorizontalDragEnd: _onDragEnd,
+                        child: Stack(children: [
+                          Positioned(
+                            top: 0,
+                            bottom: 0,
+                            right: 0,
+                            width: math.max(_actionWidth, blockWidth),
                             child: Opacity(
                               opacity: progress,
                               child: Transform.scale(
-                                scale: .6 + .4 * progress,
-                                child: _DeleteButton(onTap: _delete),
+                                scale: .9 + .1 * progress,
+                                alignment: Alignment.centerRight,
+                                child: _DeleteAction(armed: dx <= -_commitDistance, onTap: _delete),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      Transform.translate(
-                        offset: Offset(dx, 0),
-                        // While open, a tap anywhere on the card closes it.
-                        child: GestureDetector(
-                          onTap: _open ? () => _snapTo(false) : null,
-                          child: AbsorbPointer(absorbing: _open, child: widget.child),
-                        ),
-                      ),
-                    ]),
+                          Transform.translate(
+                            offset: Offset(dx, 0),
+                            child: GestureDetector(
+                              onTap: _open ? () => _snapTo(false) : null,
+                              child: AbsorbPointer(absorbing: _open, child: widget.child),
+                            ),
+                          ),
+                        ]),
+                      );
+                    },
                   );
                 },
               ),
@@ -148,28 +182,47 @@ class _SwipeToDeleteState extends State<SwipeToDelete> with TickerProviderStateM
   }
 }
 
-class _DeleteButton extends StatelessWidget {
-  const _DeleteButton({required this.onTap});
+class _DeleteAction extends StatefulWidget {
+  const _DeleteAction({required this.armed, required this.onTap});
+
+  final bool armed;
   final VoidCallback onTap;
 
   @override
+  State<_DeleteAction> createState() => _DeleteActionState();
+}
+
+class _DeleteActionState extends State<_DeleteAction> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) => setState(() => _pressed = value);
+
+  @override
   Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: const Color(0xFFE5484D),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFE5484D).withValues(alpha: .45),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 26),
+    onTapDown: (_) => _setPressed(true),
+    onTapUp: (_) => _setPressed(false),
+    onTapCancel: () => _setPressed(false),
+    onTap: widget.onTap,
+    child: AnimatedScale(
+      scale: _pressed ? .93 : 1,
+      duration: const Duration(milliseconds: 90),
+      curve: Curves.easeOut,
+      child: Container(
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: widget.armed ? const Color(0xFFF0383E) : const Color(0xFFE5484D),
+          borderRadius: BorderRadius.circular(_SwipeToDeleteState._actionRadius),
         ),
-      );
+        child: AnimatedScale(
+          scale: widget.armed ? 1.15 : 1,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutBack,
+          child: const Text(
+            'Delete',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
+          ),
+        ),
+      ),
+    ),
+  );
 }
