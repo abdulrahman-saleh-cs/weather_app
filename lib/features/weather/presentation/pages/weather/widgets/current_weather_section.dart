@@ -22,11 +22,16 @@ class CurrentWeatherSection extends StatelessWidget {
     return Column(children: [
       _Floating(
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 650),
-          switchInCurve: Curves.elasticOut,
+          duration: const Duration(milliseconds: 350),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          // Old icon fades out, new one fades in with a very small scale: no bounce.
           transitionBuilder: (w, a) => FadeTransition(
             opacity: a,
-            child: ScaleTransition(scale: a, child: w),
+            child: ScaleTransition(
+              scale: Tween<double>(begin: .92, end: 1).animate(a),
+              child: w,
+            ),
           ),
           child: WeatherIcon(
             key: ValueKey('$condition$isNight'),
@@ -38,7 +43,7 @@ class CurrentWeatherSection extends StatelessWidget {
       ),
       TweenAnimationBuilder<double>(
         tween: Tween(end: currentDegree.toDouble()),
-        duration: const Duration(milliseconds: 700),
+        duration: const Duration(milliseconds: 350),
         curve: Curves.easeOutCubic,
         builder: (_, v, __) => Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -60,8 +65,14 @@ class CurrentWeatherSection extends StatelessWidget {
           ],
         ),
       ),
-      Text(condition.label, style: const TextStyle(fontSize: 19, color: Colors.white)),
-      const SizedBox(height: 10),
+      AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        child: Text(
+          condition.label,
+          key: ValueKey(condition),
+          style: const TextStyle(fontSize: 19, color: Colors.white),
+        ),
+      ),      const SizedBox(height: 10),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         _Pill(Icons.arrow_upward_rounded, '$maxDegree°', Accent.amber),
         const SizedBox(width: 8),

@@ -93,8 +93,7 @@ class _CitiesContentState extends State<_CitiesContent> {
               valueListenable: _controller,
               builder: (_, value, _) => value.text.trim().isEmpty
                   ? SavedCitiesList(onCityChosen: _close)
-                  : SearchResultsList(onCityChosen: _close),
-            ),
+                  : SearchResultsList(query: value.text.trim(), onCityChosen: _close),            ),
           ),
         ],
       ),

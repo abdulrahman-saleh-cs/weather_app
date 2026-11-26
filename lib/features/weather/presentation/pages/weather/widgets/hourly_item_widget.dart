@@ -19,25 +19,32 @@ class HourlyItemWidget extends StatelessWidget {
   /// Fixed width for scrolling lists; `null` lets the tile fill its parent.
   final double? width;
 
+  // The gradient and the shadow always exist; only their opacity changes.
+  // That makes the highlight fade in and out smoothly instead of popping.
+  static const _gradientOn = [Color(0xFFFFB86B), Accent.coral];
+  static const _gradientOff = [Color(0x00FFB86B), Color(0x00FF7A59)];
+
   @override
   Widget build(BuildContext context) => AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutCubic,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeInOutCubic,
         width: width,
-        transform: Matrix4.translationValues(0, isNow ? -4 : 0, 0),
+        transform: Matrix4.translationValues(0, isNow ? -3 : 0, 0),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          gradient: isNow
-              ? const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFFFFB86B), Accent.coral],
-                )
-              : null,
-          boxShadow: isNow
-              ? [BoxShadow(color: Accent.coral.withValues(alpha: .45), blurRadius: 18, offset: const Offset(0, 8))]
-              : null,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isNow ? _gradientOn : _gradientOff,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Accent.coral.withValues(alpha: isNow ? .4 : 0),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
